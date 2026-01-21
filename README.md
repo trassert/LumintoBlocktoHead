@@ -1,2 +1,3 @@
-# BlockOnHead-Plugin
-Plugin for Minecraft Server, which allows players to put any blocks and objects on their heads
+# LumintoBlockToHead
+
+Plugin for MC Server, which allow players to put blocks on their heads 

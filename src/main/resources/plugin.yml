@@ -1,4 +1,19 @@
 name: BlockOnHead
-version: '1.0'
-main: org.MCS.blockOnHead.BlockOnHead
-api-version: '1.16'
+version: ${project.version}
+folia-supported: true
+main: com.trassert.blockOnHead.BlockOnHead
+api-version: '1.21.11'
+commands:
+  onhead:
+    description: Put held item on your head
+    permission: lumintohead.use
+    usage: /<command>
+  onheadreload:
+    description: Reload allowed items config
+    permission: lumintohead.reload
+    usage: /<command>
+permissions:
+  lumintohead.use:
+    default: true
+  lumintohead.reload:
+    default: op

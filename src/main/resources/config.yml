@@ -1,0 +1,16 @@
+use-whitelist: false
+
+allowed-items:
+  - DIAMOND_BLOCK
+  - IRON_BLOCK
+  - PUMPKIN
+  - PLAYER_HEAD
+  - STONE
+
+messages:
+  players-only: "&c[!] &7Only players can use this command."
+  no-permission: "&c[!] &7You don't have permission to use this command."
+  no-item-in-hand: "&c[!] &7Hold an item in your main hand!"
+  not-allowed: "&c[!] &7This item is not allowed on head."
+  success: "&a[+] &7Item placed on your head!"
+  reloaded: "&e[~] &7BlockOnHead config reloaded!"
