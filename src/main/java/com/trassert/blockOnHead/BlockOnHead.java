@@ -111,7 +111,7 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (!isAllowedHelmet(clickedItem.getType())) {
+            if (!isAllowedHelmet(inHand.getType())) {
                 player.sendMessage(colorize(getMessage("not-allowed")));
                 return true;
             }
