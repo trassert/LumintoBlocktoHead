@@ -42,17 +42,11 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
     private boolean isAllowedHelmet(Material material) {
         if (!useWhitelist)
             return true;
-
-        if (material.isArmor()) {
-            ItemStack test = new ItemStack(material);
-            return test.getEquipmentSlot() == org.bukkit.inventory.EquipmentSlot.HEAD;
-        }
-
-        if (material.name().endsWith("_HEAD") || material.name().endsWith("_SKULL") ||
-                material == Material.PUMPKIN || material == Material.CARVED_PUMPKIN) {
+        String n = material.name();
+        if (n.endsWith("_HELMET") || n.endsWith("_HEAD") || n.endsWith("_SKULL")
+                || n.equals("PUMPKIN") || n.equals("CARVED_PUMPKIN")) {
             return true;
         }
-
         return allowedMaterials.contains(material);
     }
 
