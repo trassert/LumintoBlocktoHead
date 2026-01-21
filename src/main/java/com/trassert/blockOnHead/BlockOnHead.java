@@ -39,6 +39,23 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
 
     private boolean useWhitelist = true;
 
+    private boolean isAllowedHelmet(Material material) {
+        if (!useWhitelist)
+            return true;
+
+        if (material.isArmor()) {
+            ItemStack test = new ItemStack(material);
+            return test.getEquipmentSlot() == org.bukkit.inventory.EquipmentSlot.HEAD;
+        }
+
+        if (material.name().endsWith("_HEAD") || material.name().endsWith("_SKULL") ||
+                material == Material.PUMPKIN || material == Material.CARVED_PUMPKIN) {
+            return true;
+        }
+
+        return allowedMaterials.contains(material);
+    }
+
     private void reloadAllowedMaterials() {
         FileConfiguration config = getConfig();
         useWhitelist = config.getBoolean("use-whitelist", true);
@@ -64,7 +81,7 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
             if (clickedItem == null || clickedItem.getType().isAir())
                 return;
 
-            if (useWhitelist && !allowedMaterials.contains(clickedItem.getType())) {
+            if (!isAllowedHelmet(clickedItem.getType())) {
                 event.setCancelled(true);
                 player.sendMessage(colorize(getMessage("not-allowed")));
                 return;
@@ -100,7 +117,7 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (useWhitelist && !allowedMaterials.contains(inHand.getType())) {
+            if (!isAllowedHelmet(clickedItem.getType())) {
                 player.sendMessage(colorize(getMessage("not-allowed")));
                 return true;
             }
