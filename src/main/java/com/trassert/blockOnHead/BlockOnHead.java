@@ -70,21 +70,28 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
         if (!(event.getWhoClicked() instanceof Player player))
             return;
 
-        if (event.getSlot() == 39) {
-            ItemStack clickedItem = event.getCursor();
-            if (clickedItem == null || clickedItem.getType().isAir())
-                return;
+        if (event.getRawSlot() != 39 || !event.getView().getType().equals(InventoryType.PLAYER))
+            return;
 
-            if (!isAllowedHelmet(clickedItem.getType())) {
-                event.setCancelled(true);
-                player.sendMessage(colorize(getMessage("not-allowed")));
-                return;
-            }
+        ItemStack cursor = event.getCursor();
+        if (cursor == null || cursor.getType().isAir())
+            return;
 
-            ItemStack helmetSlot = player.getInventory().getHelmet();
+        if (!isAllowedHelmet(cursor.getType()) && !player.hasPermission("lumintohead.bypass")) {
             event.setCancelled(true);
-            player.getInventory().setHelmet(clickedItem);
-            event.setCursor(helmetSlot != null ? helmetSlot : null);
+            player.sendMessage(colorize(getMessage("not-allowed")));
+            return;
+        }
+
+        event.setCancelled(true);
+
+        ItemStack currentHelmet = player.getInventory().getHelmet();
+        player.getInventory().setHelmet(cursor.clone());
+
+        if (currentHelmet == null) {
+            event.setCursor(null);
+        } else {
+            event.setCursor(currentHelmet);
         }
     }
 
@@ -111,7 +118,7 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (!isAllowedHelmet(inHand.getType())) {
+            if (!isAllowedHelmet(inHand.getType()) && !sender.hasPermission("lumintohead.bypass")) {
                 player.sendMessage(colorize(getMessage("not-allowed")));
                 return true;
             }

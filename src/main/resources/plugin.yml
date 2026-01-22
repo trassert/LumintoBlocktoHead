@@ -17,3 +17,5 @@ permissions:
     default: true
   lumintohead.reload:
     default: op
+  lumintohead.bypass:
+    default: op
