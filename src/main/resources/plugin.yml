@@ -2,7 +2,7 @@ name: BlockOnHead
 version: ${project.version}
 folia-supported: true
 main: com.trassert.blockOnHead.BlockOnHead
-api-version: '1.21.11'
+api-version: '26.1.2'
 commands:
   onhead:
     description: Put held item on your head
