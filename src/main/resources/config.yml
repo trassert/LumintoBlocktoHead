@@ -1,16 +1,34 @@
 use-whitelist: false
 
 allowed-items:
-  - DIAMOND_BLOCK
-  - IRON_BLOCK
-  - PUMPKIN
-  - PLAYER_HEAD
-  - STONE
+  - SPAWNER
+  - DROPPER
+  - DISPENSER
+  - OBSERVER
+  - GLASS
+  - TINTED_GLASS
+  - BARREL
+  - COPPER_GOLEM_STATUE
+  - EXPOSED_COPPER_GOLEM_STATUE
+  - WEATHERED_COPPER_GOLEM_STATUE
+  - OXIDIZED_COPPER_GOLEM_STATUE
+  - WAXED_COPPER_GOLEM_STATUE
+  - WAXED_EXPOSED_COPPER_GOLEM_STATUE
+  - WAXED_WEATHERED_COPPER_GOLEM_STATUE
+  - WAXED_OXIDIZED_COPPER_GOLEM_STATUE
+  - DECORATED_POT
+  - BONE
+  - AMETHYST_CLUSTER
+  - COMMAND_BLOCK
+  - TEST_BLOCK
+  - TNT
+  - END_ROD
 
 messages:
-  players-only: "&c[!] &7Only players can use this command."
-  no-permission: "&c[!] &7You don't have permission to use this command."
-  no-item-in-hand: "&c[!] &7Hold an item in your main hand!"
-  not-allowed: "&c[!] &7This item is not allowed on head."
-  success: "&a[+] &7Item placed on your head!"
-  reloaded: "&e[~] &7BlockOnHead config reloaded!"
+  players-only: "<red>[!] <gray>Only players can use this command."
+  no-permission: "<red>[!] <gray>You don't have permission to use this command."
+  no-item-in-hand: "<red>[!] <gray>Hold an item in your main hand!"
+  not-allowed: "<red>[!] <gray>This item is not allowed on head."
+  already-wearing: "<red>[!] <gray>You are already wearing an item on your head."
+  success: "<green>[+] <gray>Item placed on your head!"
+  reloaded: "<yellow>[~] <gray>BlockOnHead config reloaded!"
