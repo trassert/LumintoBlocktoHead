@@ -1,5 +1,7 @@
 # LumintoBlockToHead
 
+![Platform](https://img.shields.io/badge/Platform-Paper%20%7C%20Spigot-blue?style=for-the-badge&logo=spigotmc)
+
 Lightweight plugin for Paper-based servers, which allow players to put blocks on their heads.
 
 Builded for the [**Luminto**](https://t.me/lumintoch) project.
