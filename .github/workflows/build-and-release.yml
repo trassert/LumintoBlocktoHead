@@ -191,7 +191,5 @@ jobs:
 
           loaders: |
             paper
-            spigot
             purpur
             folia
-            bukkit
