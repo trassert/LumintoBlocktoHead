@@ -26,7 +26,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: "25"
+          java-version: "17"
           distribution: "temurin"
 
       - name: Get Maven version
@@ -71,7 +71,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: "25"
+          java-version: "17"
           distribution: "temurin"
 
       - name: Build
@@ -187,7 +187,7 @@ jobs:
           files: "**/*.jar"
 
           game-versions: |
-            26.2
+            >=1.17.1 <=26.3
 
           loaders: |
             paper

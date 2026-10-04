@@ -1,21 +1,31 @@
-name: BlockOnHead
-version: ${project.version}
-folia-supported: true
+name: BlockToHead
+version: '${project.version}'
 main: com.trassert.blockOnHead.BlockOnHead
-api-version: '26.2'
+api-version: '1.17'
+folia-supported: true
+
+description: Allows players to put blocks and items on their heads.
+
 commands:
   onhead:
-    description: Put held item on your head
+    description: Put the item in your main hand on your head.
+    usage: /onhead
     permission: lumintohead.use
-    usage: /<command>
+
   onheadreload:
-    description: Reload allowed items config
+    description: Reload BlockToHead configuration.
+    usage: /onheadreload
     permission: lumintohead.reload
-    usage: /<command>
+
 permissions:
   lumintohead.use:
+    description: Allows using /onhead.
     default: true
+
   lumintohead.reload:
+    description: Allows reloading the plugin configuration.
     default: op
+
   lumintohead.bypass:
+    description: Allows wearing items that are not in the whitelist.
     default: op

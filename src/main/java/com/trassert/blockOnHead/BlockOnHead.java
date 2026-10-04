@@ -6,8 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,7 +24,7 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private final Set<Material> allowedMaterials = new HashSet<>();
-    private boolean useWhitelist = true;
+    private boolean useWhitelist;
 
     @Override
     public void onEnable() {
@@ -34,66 +32,56 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
         reloadAllowedMaterials();
 
         Bukkit.getPluginManager().registerEvents(this, this);
-        registerCommand("onhead");
-        registerCommand("onheadreload");
 
-        getLogger().info("[BlockOnHead] Plugin enabled!");
+        if (getCommand("onhead") != null)
+            getCommand("onhead").setExecutor(this);
+
+        if (getCommand("onheadreload") != null)
+            getCommand("onheadreload").setExecutor(this);
+
+        getLogger().info("BlockOnHead enabled!");
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("[BlockOnHead] Plugin disabled!");
+        getLogger().info("BlockOnHead disabled!");
     }
 
-    private void registerCommand(@NotNull String name) {
-        PluginCommand command = getCommand(name);
-        if (command != null) {
-            command.setExecutor(this);
-        } else {
-            getLogger().warning("Command '" + name + "' is missing from plugin.yml");
+    private void reloadAllowedMaterials() {
+        useWhitelist = getConfig().getBoolean("use-whitelist", true);
+        allowedMaterials.clear();
+
+        for (String name : getConfig().getStringList("allowed-items")) {
+            Material material = Material.getMaterial(name.toUpperCase(Locale.ROOT));
+
+            if (material != null && material.isItem()) {
+                allowedMaterials.add(material);
+            }
         }
     }
 
-    private boolean isAllowedHelmet(@NotNull Material material) {
+    private boolean isAllowed(@NotNull Material material) {
         if (!useWhitelist) {
             return true;
         }
 
         String name = material.name();
-        if (name.endsWith("_HELMET") || name.endsWith("_HEAD") || name.endsWith("_SKULL")
-                || name.equals("PUMPKIN") || name.equals("CARVED_PUMPKIN")) {
-            return true;
-        }
 
-        return allowedMaterials.contains(material);
+        return name.endsWith("_HELMET")
+                || name.endsWith("_HEAD")
+                || name.endsWith("_SKULL")
+                || material == Material.PUMPKIN
+                || material == Material.CARVED_PUMPKIN
+                || allowedMaterials.contains(material);
     }
 
-    private void reloadAllowedMaterials() {
-        FileConfiguration config = getConfig();
-        useWhitelist = config.getBoolean("use-whitelist", true);
-
-        Set<Material> materials = new HashSet<>();
-        for (String itemName : config.getStringList("allowed-items")) {
-            if (itemName == null) {
-                continue;
-            }
-
-            Material material = Material.getMaterial(itemName.toUpperCase(Locale.ROOT));
-            if (material != null && material.isItem()) {
-                materials.add(material);
-            }
-        }
-
-        allowedMaterials.clear();
-        allowedMaterials.addAll(materials);
-    }
-
-    private @NotNull Component getMessage(@NotNull String key) {
-        String message = getConfig().getString("messages." + key);
-        if (message == null) {
-            message = "<red>[!] <gray>Unknown message: " + key + "</gray></red>";
-        }
-        return MINI_MESSAGE.deserialize(message);
+    private @NotNull Component message(@NotNull String key) {
+        return MINI_MESSAGE.deserialize(
+                getConfig().getString(
+                        "messages." + key,
+                        "<red>[!] <gray>Unknown message: " + key + "</gray></red>"
+                )
+        );
     }
 
     @EventHandler
@@ -102,92 +90,101 @@ public final class BlockOnHead extends JavaPlugin implements Listener {
             return;
         }
 
-        if (event.getRawSlot() != 39 || event.getView().getType() != InventoryType.PLAYER) {
+        if (event.getRawSlot() != 39
+                || event.getView().getType() != InventoryType.PLAYER) {
             return;
         }
 
         ItemStack cursor = event.getView().getCursor();
-        if (cursor == null || cursor.getType().isAir()) {
+
+        if (cursor.getType().isAir()) {
             return;
         }
 
-        if (!isAllowedHelmet(cursor.getType()) && !player.hasPermission("lumintohead.bypass")) {
+        if (!isAllowed(cursor.getType())
+                && !player.hasPermission("lumintohead.bypass")) {
+
             event.setCancelled(true);
-            player.sendMessage(getMessage("not-allowed"));
+            player.sendMessage(message("not-allowed"));
             return;
         }
 
         event.setCancelled(true);
 
         ItemStack currentHelmet = player.getInventory().getHelmet();
+
         player.getInventory().setHelmet(cursor.clone());
 
-        if (currentHelmet == null || currentHelmet.getType().isAir()) {
-            event.getView().setCursor(null);
-        } else {
-            event.getView().setCursor(currentHelmet);
-        }
+        event.getView().setCursor(
+                currentHelmet == null || currentHelmet.getType().isAir()
+                        ? null
+                        : currentHelmet
+        );
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender,
+    public boolean onCommand(
+            @NotNull CommandSender sender,
             @NotNull Command command,
             @NotNull String label,
-            @NotNull String[] args) {
-        if (command.getName().equalsIgnoreCase("onhead")) {
-            return handleOnHead(sender);
-        }
-
-        if (command.getName().equalsIgnoreCase("onheadreload")) {
-            return handleOnHeadReload(sender);
-        }
-
-        return false;
+            @NotNull String[] args
+    ) {
+        return switch (command.getName().toLowerCase(Locale.ROOT)) {
+            case "onhead" -> handleOnHead(sender);
+            case "onheadreload" -> handleReload(sender);
+            default -> false;
+        };
     }
 
     private boolean handleOnHead(@NotNull CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(getMessage("players-only"));
+            sender.sendMessage(message("players-only"));
             return true;
         }
 
         if (!player.hasPermission("lumintohead.use")) {
-            player.sendMessage(getMessage("no-permission"));
+            player.sendMessage(message("no-permission"));
             return true;
         }
 
-        ItemStack inHand = player.getInventory().getItemInMainHand();
-        if (inHand == null || inHand.getType().isAir()) {
-            player.sendMessage(getMessage("no-item-in-hand"));
+        ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (item.getType().isAir()) {
+            player.sendMessage(message("no-item-in-hand"));
             return true;
         }
 
-        if (!isAllowedHelmet(inHand.getType()) && !player.hasPermission("lumintohead.bypass")) {
-            player.sendMessage(getMessage("not-allowed"));
+        if (!isAllowed(item.getType())
+                && !player.hasPermission("lumintohead.bypass")) {
+
+            player.sendMessage(message("not-allowed"));
             return true;
         }
 
         ItemStack helmet = player.getInventory().getHelmet();
+
         if (helmet != null && !helmet.getType().isAir()) {
-            player.sendMessage(getMessage("already-wearing"));
+            player.sendMessage(message("already-wearing"));
             return true;
         }
 
-        player.getInventory().setHelmet(inHand);
+        player.getInventory().setHelmet(item);
         player.getInventory().setItemInMainHand(null);
-        player.sendMessage(getMessage("success"));
+        player.sendMessage(message("success"));
+
         return true;
     }
 
-    private boolean handleOnHeadReload(@NotNull CommandSender sender) {
+    private boolean handleReload(@NotNull CommandSender sender) {
         if (!sender.hasPermission("lumintohead.reload")) {
-            sender.sendMessage(getMessage("no-permission"));
+            sender.sendMessage(message("no-permission"));
             return true;
         }
 
         reloadConfig();
         reloadAllowedMaterials();
-        sender.sendMessage(getMessage("reloaded"));
+
+        sender.sendMessage(message("reloaded"));
         return true;
     }
 }
